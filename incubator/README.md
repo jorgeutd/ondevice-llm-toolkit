@@ -28,7 +28,31 @@ pip install -e .[dev]
 ruff check . && pytest
 ```
 
-## 2. `profile/README.md` → `jorgeutd/jorgeutd`
+## 2. `llm-inference-starters/` → new repository
+
+Starter code and deployment recipes for six inference engines (vLLM, SGLang,
+llama.cpp, TensorRT-LLM, Ollama, MLX) plus the `llmstart` micro-benchmark
+CLI (21 passing tests, ruff-clean, shellcheck-clean, CI included). To
+publish as `jorgeutd/llm-inference-starters`:
+
+```bash
+cp -R /tmp/staging/incubator/llm-inference-starters ~/llm-inference-starters
+cd ~/llm-inference-starters
+git init && git add -A && git commit -m "feat: initial release of llm-inference-starters"
+gh repo create jorgeutd/llm-inference-starters --public --source . --push \
+  --description "Starter code and deployment recipes for LLM inference engines: vLLM, SGLang, llama.cpp, TensorRT-LLM, Ollama, MLX"
+```
+
+Verify locally first if you like:
+
+```bash
+cd ~/llm-inference-starters
+python -m venv .venv && source .venv/bin/activate
+pip install -e "common/[dev]"
+ruff check common/ examples/ && pytest common/
+```
+
+## 3. `profile/README.md` → `jorgeutd/jorgeutd`
 
 Replaces your profile README (last updated April 2024) with one that
 reflects your current agents / on-device inference / MCP work:
@@ -41,9 +65,10 @@ git add README.md && git commit -m "docs: refresh profile with agents and on-dev
 ```
 
 Review the featured-projects section before pushing: the
-`local-agent-bench` link only becomes valid after step 1.
+`local-agent-bench` and `llm-inference-starters` links only become valid
+after steps 1 and 2.
 
-## 3. Clean up
+## 4. Clean up
 
-After both extractions, close the PR and delete this branch — none of
+After the extractions, close the PR and delete this branch — none of
 this content belongs in `ondevice-llm-toolkit` main.
