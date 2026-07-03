@@ -1,8 +1,8 @@
 # Hi, I'm Jorge 👋
 
-**Staff AI Engineer II – AI Agents** · Columbus, OH
+**Principal AI Engineer — AI Agents & LLM Inference** · Columbus, OH
 
-I design and ship production AI systems end to end: multi-agent architectures, on-device and cloud LLM/STT inference, MCP tooling, and the evaluation, observability, and release governance that make them safe to run. 12+ years across data science, ML engineering, and GenAI in retail, insurance, and healthcare.
+I design and ship production AI systems end to end: multi-agent architectures, on-device and cloud LLM/STT inference, MCP tooling, and the evaluation, observability, and release governance that make them safe to run. 12+ years operating at Staff+/Principal level across data science, ML engineering, and GenAI in retail, insurance, and healthcare.
 
 ## 🔭 What I work on
 
@@ -28,8 +28,9 @@ I design and ship production AI systems end to end: multi-agent architectures, o
 
 ## 📌 Featured projects
 
-- [`ondevice-llm-toolkit`](https://github.com/jorgeutd/ondevice-llm-toolkit) — macOS-first CLI for benchmarking llama.cpp builds and managing GGUF models locally (speed: tokens/sec, time to first token, memory).
+- [`llm-inference-starters`](https://github.com/jorgeutd/llm-inference-starters) — production-oriented starter code and deployment recipes for LLM inference engines (vLLM, SGLang, llama.cpp, TensorRT-LLM, Ollama, MLX), plus `llmstart`, a micro-benchmark CLI for TTFT and decode tokens/sec on any OpenAI-compatible endpoint.
 - [`local-agent-bench`](https://github.com/jorgeutd/local-agent-bench) — statistical benchmark for tool calling and structured outputs on local/quantized LLMs, with Wilson confidence intervals and bootstrap comparisons (quality: does your Q4 model still call the right tool?).
+- [`ondevice-llm-toolkit`](https://github.com/jorgeutd/ondevice-llm-toolkit) — macOS-first CLI for benchmarking llama.cpp builds and managing GGUF models locally (speed: tokens/sec, time to first token, memory).
 - [`swarm-multi-agent-orchestration`](https://github.com/jorgeutd/swarm-multi-agent-orchestration) — multi-agent orchestration patterns.
 - [`llm-finetuning-scripts-utils`](https://github.com/jorgeutd/llm-finetuning-scripts-utils) — SFT and alignment training scripts for transformer LMs on SageMaker.
 
