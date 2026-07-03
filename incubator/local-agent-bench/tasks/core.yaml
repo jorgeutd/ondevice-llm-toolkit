@@ -1,0 +1,229 @@
+# Core task suite v0.1
+#
+# Categories:
+#   tool_call         - the model must call the right tool with right arguments
+#   no_tool           - tools are offered but the correct behavior is to answer directly
+#   structured_output - the model must emit JSON conforming to a schema
+#
+# Argument matching: "exact" requires the argument object to match exactly;
+# "subset" requires the listed keys to be present with the listed values.
+
+- id: tc-001-weather-basic
+  category: tool_call
+  prompt: "What's the weather in Columbus, Ohio right now?"
+  tools: &weather_tools
+    - type: function
+      function:
+        name: get_weather
+        description: Get current weather for a city.
+        parameters:
+          type: object
+          properties:
+            city: { type: string, description: "City name" }
+            unit: { type: string, enum: [celsius, fahrenheit] }
+          required: [city]
+  expected:
+    tool_name: get_weather
+    arguments: { city: "Columbus" }
+    argument_match: subset
+
+- id: tc-002-weather-unit
+  category: tool_call
+  prompt: "Give me the current temperature in Madrid in celsius."
+  tools: *weather_tools
+  expected:
+    tool_name: get_weather
+    arguments: { city: "Madrid", unit: "celsius" }
+    argument_match: subset
+
+- id: tc-003-calculator
+  category: tool_call
+  prompt: "Use the calculator to compute 847 times 293."
+  tools:
+    - type: function
+      function:
+        name: calculator
+        description: Evaluate a basic arithmetic expression.
+        parameters:
+          type: object
+          properties:
+            expression: { type: string, description: "Arithmetic expression, e.g. '2+2'" }
+          required: [expression]
+  expected:
+    tool_name: calculator
+
+- id: tc-004-tool-selection
+  category: tool_call
+  prompt: "Look up the stock price for the ticker AAPL."
+  tools:
+    - type: function
+      function:
+        name: get_stock_price
+        description: Get the latest stock price for a ticker symbol.
+        parameters:
+          type: object
+          properties:
+            ticker: { type: string }
+          required: [ticker]
+    - type: function
+      function:
+        name: get_weather
+        description: Get current weather for a city.
+        parameters:
+          type: object
+          properties:
+            city: { type: string }
+          required: [city]
+    - type: function
+      function:
+        name: send_email
+        description: Send an email to a recipient.
+        parameters:
+          type: object
+          properties:
+            to: { type: string }
+            subject: { type: string }
+            body: { type: string }
+          required: [to, subject, body]
+  expected:
+    tool_name: get_stock_price
+    arguments: { ticker: "AAPL" }
+    argument_match: exact
+
+- id: tc-005-multi-arg
+  category: tool_call
+  prompt: >-
+    Schedule a meeting titled "Quarterly Review" on 2026-08-15 at 14:00 for
+    45 minutes.
+  tools:
+    - type: function
+      function:
+        name: schedule_meeting
+        description: Create a calendar meeting.
+        parameters:
+          type: object
+          properties:
+            title: { type: string }
+            date: { type: string, description: "ISO date YYYY-MM-DD" }
+            time: { type: string, description: "24h time HH:MM" }
+            duration_minutes: { type: integer }
+          required: [title, date, time, duration_minutes]
+  expected:
+    tool_name: schedule_meeting
+    arguments:
+      title: "Quarterly Review"
+      date: "2026-08-15"
+      time: "14:00"
+      duration_minutes: 45
+    argument_match: exact
+
+- id: tc-006-enum-argument
+  category: tool_call
+  prompt: "Convert 250 US dollars to euros using the currency tool."
+  tools:
+    - type: function
+      function:
+        name: convert_currency
+        description: Convert an amount between currencies.
+        parameters:
+          type: object
+          properties:
+            amount: { type: number }
+            from_currency: { type: string, enum: [USD, EUR, GBP, JPY] }
+            to_currency: { type: string, enum: [USD, EUR, GBP, JPY] }
+          required: [amount, from_currency, to_currency]
+  expected:
+    tool_name: convert_currency
+    arguments: { amount: 250, from_currency: "USD", to_currency: "EUR" }
+    argument_match: exact
+
+- id: nt-001-general-knowledge
+  category: no_tool
+  prompt: "What is the capital of France?"
+  tools: *weather_tools
+  expected: {}
+
+- id: nt-002-irrelevant-tools
+  category: no_tool
+  prompt: "Write a haiku about autumn leaves."
+  tools:
+    - type: function
+      function:
+        name: get_stock_price
+        description: Get the latest stock price for a ticker symbol.
+        parameters:
+          type: object
+          properties:
+            ticker: { type: string }
+          required: [ticker]
+  expected: {}
+
+- id: nt-003-arithmetic-trivial
+  category: no_tool
+  prompt: "What is 2 plus 2? Answer in one word."
+  tools:
+    - type: function
+      function:
+        name: get_weather
+        description: Get current weather for a city.
+        parameters:
+          type: object
+          properties:
+            city: { type: string }
+          required: [city]
+  expected: {}
+
+- id: so-001-contact-extraction
+  category: structured_output
+  prompt: >-
+    Extract the contact from this text as JSON with keys "name", "email" and
+    "phone": "Reach out to Maria Chen at maria.chen@example.com or
+    614-555-0142." Respond with JSON only.
+  expected:
+    json_schema:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+        phone: { type: string }
+      required: [name, email, phone]
+      additionalProperties: false
+
+- id: so-002-sentiment-enum
+  category: structured_output
+  prompt: >-
+    Classify the sentiment of this review as JSON with keys "sentiment"
+    (one of "positive", "negative", "neutral") and "confidence" (0 to 1):
+    "The battery life is terrible and the screen scratched on day one."
+    Respond with JSON only.
+  expected:
+    json_schema:
+      type: object
+      properties:
+        sentiment: { type: string, enum: [positive, negative, neutral] }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+      required: [sentiment, confidence]
+      additionalProperties: false
+
+- id: so-003-line-items
+  category: structured_output
+  prompt: >-
+    Convert this order into JSON with key "items", an array of objects with
+    "sku" (string) and "quantity" (integer): "3 units of SKU A-100 and
+    12 units of SKU B-205". Respond with JSON only.
+  expected:
+    json_schema:
+      type: object
+      properties:
+        items:
+          type: array
+          minItems: 2
+          items:
+            type: object
+            properties:
+              sku: { type: string }
+              quantity: { type: integer }
+            required: [sku, quantity]
+            additionalProperties: false
+      required: [items]
+      additionalProperties: false

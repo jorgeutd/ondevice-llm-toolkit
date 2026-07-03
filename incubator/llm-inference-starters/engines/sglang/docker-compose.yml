@@ -1,0 +1,32 @@
+services:
+  sglang:
+    image: lmsysorg/sglang:latest
+    container_name: sglang
+    entrypoint: python3 -m sglang.launch_server
+    command: >
+      --model-path ${MODEL_ID:-Qwen/Qwen2.5-1.5B-Instruct}
+      --host 0.0.0.0
+      --port 30000
+    ports:
+      - "30000:30000"
+    volumes:
+      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
+    environment:
+      - HF_TOKEN=${HF_TOKEN:-}
+    shm_size: 32g
+    ipc: host
+    restart: unless-stopped
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:30000/health || exit 1"]
+      interval: 30s
+      start_period: 120s
