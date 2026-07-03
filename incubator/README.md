@@ -4,6 +4,18 @@ This directory is a delivery vehicle for content destined for **other**
 repositories. It exists because the agent workspace only has push access
 to `ondevice-llm-toolkit`. Extract the contents as described below.
 
+**Fastest path:** from any machine where `gh` is logged in as `jorgeutd`,
+run the one-command publisher, which performs all three steps below
+idempotently:
+
+```bash
+git clone https://github.com/jorgeutd/ondevice-llm-toolkit
+cd ondevice-llm-toolkit
+./scripts/publish_incubator.sh
+```
+
+The manual equivalents follow.
+
 ## 1. `local-agent-bench/` → new repository
 
 A complete, tested project (37 passing tests, ruff-clean, CI workflow
