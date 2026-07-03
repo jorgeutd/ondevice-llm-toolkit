@@ -1,8 +1,8 @@
-# Incubator (delivery staging — do not merge to main)
+# Incubator (staging for extraction into separate repositories)
 
 This directory is a delivery vehicle for content destined for **other**
-repositories. It exists because this workspace only has push access to
-`ondevice-llm-toolkit`. Extract the contents and delete the branch.
+repositories. It exists because the agent workspace only has push access
+to `ondevice-llm-toolkit`. Extract the contents as described below.
 
 ## 1. `local-agent-bench/` → new repository
 
@@ -11,7 +11,7 @@ included). To publish it as `jorgeutd/local-agent-bench`:
 
 ```bash
 # from a machine with your GitHub credentials
-git clone https://github.com/jorgeutd/ondevice-llm-toolkit --branch cursor/local-agent-bench-scaffold-1a10 /tmp/staging
+git clone https://github.com/jorgeutd/ondevice-llm-toolkit /tmp/staging
 cp -R /tmp/staging/incubator/local-agent-bench ~/local-agent-bench
 cd ~/local-agent-bench
 git init && git add -A && git commit -m "feat: initial release of local-agent-bench"
@@ -70,5 +70,11 @@ after steps 1 and 2.
 
 ## 4. Clean up
 
-After the extractions, close the PR and delete this branch — none of
-this content belongs in `ondevice-llm-toolkit` main.
+After the extractions, remove this staging directory from main so the
+extracted repositories remain the single source of truth:
+
+```bash
+git rm -r incubator
+git commit -m "chore: remove incubator staging after extraction"
+git push
+```
