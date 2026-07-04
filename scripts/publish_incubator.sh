@@ -12,6 +12,19 @@ set -euo pipefail
 
 OWNER="${PUBLISH_OWNER:-jorgeutd}"
 
+# Cursor Cloud Agents inject secrets as environment variables. If gh has no
+# token yet, adopt one from the known secret names (most specific first).
+if [[ -z "${GH_TOKEN:-}" ]]; then
+  for candidate in github-publish GITHUB_PUBLISH GITHUB-PUBLISH GH_USER_TOKEN; do
+    value="$(printenv "$candidate" 2>/dev/null || true)"
+    if [[ -n "$value" ]]; then
+      export GH_TOKEN="$value"
+      echo "using token from secret: $candidate"
+      break
+    fi
+  done
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
 INCUBATOR="$REPO_ROOT/incubator"
@@ -62,7 +75,10 @@ update_profile() {
   fi
   git -C "$clone_dir" add README.md
   git -C "$clone_dir" commit -q -m "docs: refresh profile with agents and llm inference work"
-  git -C "$clone_dir" push -q
+  # Route the push through gh's credential helper so the personal token is
+  # used even when the machine has a different global git credential helper.
+  git -C "$clone_dir" -c credential.helper= \
+    -c 'credential.helper=!gh auth git-credential' push -q
   echo "done: profile README updated at https://github.com/$OWNER"
 }
 
