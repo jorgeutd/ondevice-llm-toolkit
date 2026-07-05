@@ -1,8 +1,0 @@
-# Example Modelfile: a deterministic, terse assistant based on qwen2.5:1.5b.
-# Build with: ollama create my-qwen -f Modelfile
-FROM qwen2.5:1.5b
-
-PARAMETER temperature 0
-PARAMETER num_ctx 8192
-
-SYSTEM """You are a precise assistant. Answer concisely. When asked for JSON, respond with JSON only."""
